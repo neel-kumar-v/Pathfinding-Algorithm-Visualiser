@@ -3,8 +3,8 @@ import math
 from queue import PriorityQueue
 import random
 
-WIDTH = 950
-ROWS = 50
+WIDTH = 960
+ROWS = 40
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 
 pygame.display.set_caption("Path Finding Algorithm and Visualizer: M-Mazes, D-Djikstra's, G-Greedy, A-A*, B-BFS")
@@ -109,6 +109,11 @@ class Node:
 
     if self.col > 0 and not grid[self.row][self.col - 2].is_visited(): # left
       self.maze_neighbors.append(grid[self.row][self.col - 2])
+  def is_redundant(self):
+    for neighbor in self.neighbors:
+      if not neighbor.color == WHITE:
+        return True
+    return False
   def __lt__(self, other):
     return False
 
@@ -118,15 +123,21 @@ def heuristic(p1, p2):
   x2, y2 = p2
   return abs(x1 - x2) + abs(y1 - y2)
 
-def reconstruct_path(came_from, current, draw):
+def reconstruct_path(came_from, current, draw, start, end, grid):
+  for row in grid:
+      for node in row:
+        if node.is_open():
+          node.reset()
   while current in came_from:
     current = came_from[current]
     current.make_path()
     draw()
+  end.make_end()
+  start.make_start()
 
 def algorithm(draw, grid, start, end, is_greedy, h_score_multiplier, g_score_multiplier, is_weighted): # Algorithm that can be A*, Djikstra's, BFS, Swarm, Convergent Swarm, or Greedy Best-First Search with different multipliers passed in.
 
-  if not is_weighted: # If the algorithm we have passed in does not account for weights, remove all the weights.
+  if not is_weighted: 
     for row in grid:
       for node in row:
         if node.is_weight():
@@ -135,33 +146,31 @@ def algorithm(draw, grid, start, end, is_greedy, h_score_multiplier, g_score_mul
   count = 0
   open_set = PriorityQueue()
   open_set.put((0, count, start))
-  came_from = {} # stores the path the pathfinder takes
+  came_from = {} 
   g_score = {node: float("inf") for row in grid for node in row}
-  g_score[start] = 0 # the start position has a a g_score of 0
+  g_score[start] = 0
   f_score = {node: float("inf") for row in grid for node in row}
-  f_score[start] = h_score_multiplier * heuristic(start.get_pos(), end.get_pos()) # distance from start to end, we don't need to add the g_score, because it is 0 anyways
+  f_score[start] = h_score_multiplier * heuristic(start.get_pos(), end.get_pos()) # distance from start to end
   
   open_set_hash = {start}
 
-  while not open_set.empty(): #While the open set has not run out of nodes to check
-    for event in pygame.event.get(): #Allow the user to close the visualizer during the algorithm
+  while not open_set.empty(): # While the open set has not run out of nodes to check
+    for event in pygame.event.get(): # Allow the user to close the visualizer during the algorithm
       if event.type == pygame.QUIT:
         pygame.quit()
 
-    current = open_set.get()[2] #Gets the node with lowest value f-score in the open-set - sorted by f-score, then count
-    open_set_hash.remove(current) #Synchronizes with the open_set
+    current = open_set.get()[2] # Gets the node with lowest value f-score
+    open_set_hash.remove(current) # Synchronizes with the open_set
 
     if current == end: # If we found the path
-      reconstruct_path(came_from, end, draw) # Reconstructs the path
-      end.make_end() #Makes the start and end nodes not the path color
-      start.make_start()
+      reconstruct_path(came_from, end, draw, start, end, grid) # Reconstructs the path
       return True 
-    
+
     for neighbor in current.neighbors: # checks all the neighbors of the node we are on right now
       if neighbor.is_weight(): #If the neighbor is weighted
         temp_g_score = g_score[current] + 15 # add 15 to the g_score, instead of 1 
       else: #If the neighbor is not weighted
-        temp_g_score = g_score[current] + int(not is_greedy) # add 1 to the g_score IF the algorithm is not greedy, which is the normal thing to add. If the algorithm is greedy, then do not add anything, since Greddy algorithms do not care about the g-score
+        temp_g_score = g_score[current] + int(not is_greedy) # add 1 to the g_score IF the algorithm is not greedy, which is the normal thing to add. If the algorithm is greedy, then do not add anything, since Greedy algorithms do not care about the g-score
         
 
       if temp_g_score < g_score[neighbor]: #If we found a  better way to reach this node
@@ -187,7 +196,7 @@ def algorithm(draw, grid, start, end, is_greedy, h_score_multiplier, g_score_mul
 
   return False
 
-def depth_first_search_algorithm(draw, grid, start, end): #Depth first search is a really bad pathfinding algorithm, so I added it in to show how bad it is
+def depth_first_search_algorithm(draw, grid, start, end): 
   for row in grid:
     for node in row:
       if node.is_weight():
@@ -208,9 +217,7 @@ def depth_first_search_algorithm(draw, grid, start, end): #Depth first search is
       if neighbor == end: #If we found a way to reach this node
         came_from[neighbor] = current
         print("Reconstructing path")
-        reconstruct_path(came_from, end, draw) # Reconstructs the path
-        end.make_end() #Makes the start and end nodes not the path color
-        start.make_start()
+        reconstruct_path(came_from, end, draw, start, end) 
         return True 
       elif neighbor not in open_set and neighbor not in closed_set: # If the neighor is not in the open_set
         came_from[neighbor] = current
@@ -415,34 +422,6 @@ def main(win, width):
 
           
         if start and end and not no_algorithm_previously_run:
-          if event.key == pygame.K_a:
-            pygame.display.set_caption("A* Path Finding Algorithm and Visualizer")  
-            node_update_neighbors(grid)
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1.000_000_1, 1, True)
-          elif event.key == pygame.K_j:
-            pygame.display.set_caption("Djikstra's Path Finding Algorithm and Visualizer")
-            node_update_neighbors(grid)
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 0, 1, True)
-          elif event.key == pygame.K_g:
-            pygame.display.set_caption("Greedy Best-first Search Path Finding Algorithm and Visualizer")
-            node_update_neighbors(grid)
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, True, 1, 1, True)
-          elif event.key == pygame.K_s:
-            pygame.display.set_caption("Swarm Path Finding Algorithm and Visualizer")
-            node_update_neighbors(grid)
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1, 1.08, True)
-          elif event.key == pygame.K_b:            
-            pygame.display.set_caption("Breadth-First Search Path Finding Algorithm and Visualizer")
-            node_update_neighbors(grid)
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 0, 1, False)
-          elif event.key == pygame.K_x:
-            pygame.display.set_caption("Convergent Swarm Path Finding Algorithm and Visualizer")
-            node_update_neighbors(grid)
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1, 1.02, True)
-          elif event.key == pygame.K_d:
-            pygame.display.set_caption("Depth-first Search Path Finding Algorithm and Visualizer")
-            node_update_neighbors(grid)
-            depth_first_search_algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
           if event.key == pygame.K_1:
             make_randomized_maze(lambda: draw(win, grid, ROWS, width), grid, start, end, True, False)
           elif event.key == pygame.K_2:
@@ -456,6 +435,29 @@ def main(win, width):
               for node in row:
                 node.maze_update_neighbors(grid)
             iterative_backtracking_maze(lambda: draw(win, grid, ROWS, width), grid, start, end)
+          node_update_neighbors(grid)
+          if event.key == pygame.K_a:
+            pygame.display.set_caption("A* Path Finding Algorithm and Visualizer")  
+            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1.000_000_1, 1, True)
+          elif event.key == pygame.K_j:
+            pygame.display.set_caption("Djikstra's Path Finding Algorithm and Visualizer")
+            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 0, 1, True)
+          elif event.key == pygame.K_g:
+            pygame.display.set_caption("Greedy Best-first Search Path Finding Algorithm and Visualizer")
+            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, True, 1, 1, True)
+          elif event.key == pygame.K_s:
+            pygame.display.set_caption("Swarm Path Finding Algorithm and Visualizer")
+            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1, 1.08, True)
+          elif event.key == pygame.K_b:            
+            pygame.display.set_caption("Breadth-First Search Path Finding Algorithm and Visualizer")
+            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 0, 1, False)
+          elif event.key == pygame.K_x:
+            pygame.display.set_caption("Convergent Swarm Path Finding Algorithm and Visualizer")
+            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1, 1.004_7, True)
+          elif event.key == pygame.K_d:
+            pygame.display.set_caption("Depth-first Search Path Finding Algorithm and Visualizer")
+            depth_first_search_algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
+          
             
 
         if event.key == pygame.K_r:
