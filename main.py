@@ -221,7 +221,7 @@ def depth_first_search_algorithm(draw, grid, start, end):
         return True 
       elif neighbor not in open_set and neighbor not in closed_set: # If the neighor is not in the open_set
         came_from[neighbor] = current
-        open_set.append(neighbor) #Add the neighbor into the open_set
+        open_set.append(neighbor) 
         if neighbor != start:
           if neighbor.is_closed:
             neighbor.make_open() #Makes it look open
@@ -274,7 +274,7 @@ def get_clicked_pos(pos, rows, width):
 
   return row, col
 
-def clear_board_path(grid):
+def is_board_path_clear(grid):
   for row in grid:
     for node in row:
       if node.is_open() or node.is_closed() or node.is_path():
@@ -364,12 +364,9 @@ def caption():
   pygame.display.set_caption("Path Finding Algorithm and Visualizer")
 
 def main(win, width):
-  
   grid = make_grid(ROWS, width)
-
   start = None
   end = None
-
   run = True
 
   while run:
@@ -377,8 +374,6 @@ def main(win, width):
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
         run = False
-
-
       if pygame.mouse.get_pressed()[0]:
         pos = pygame.mouse.get_pos()
         row, col = get_clicked_pos(pos, ROWS, width)
@@ -397,6 +392,7 @@ def main(win, width):
         row, col = get_clicked_pos(pos, ROWS, width)
         node = grid[row][col]
         node.reset()
+
         if node == start:
           start = None
         elif node == end:
@@ -415,12 +411,8 @@ def main(win, width):
         elif node != end and node != start and not node.is_barrier():
           node.make_weight()
 
-
       if event.type == pygame.KEYDOWN:
-        no_algorithm_previously_run = clear_board_path(grid)
-          
-
-          
+        no_algorithm_previously_run = is_board_path_clear(grid)
         if start and end and not no_algorithm_previously_run:
           if event.key == pygame.K_1:
             make_randomized_maze(lambda: draw(win, grid, ROWS, width), grid, start, end, True, False)
@@ -435,12 +427,14 @@ def main(win, width):
               for node in row:
                 node.maze_update_neighbors(grid)
             iterative_backtracking_maze(lambda: draw(win, grid, ROWS, width), grid, start, end)
+
           node_update_neighbors(grid)
+
           if event.key == pygame.K_a:
             pygame.display.set_caption("A* Path Finding Algorithm and Visualizer")  
             algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1.000_000_1, 1, True)
           elif event.key == pygame.K_j:
-            pygame.display.set_caption("Djikstra's Path Finding Algorithm and Visualizer")
+            pygame.display.set_caption("Dijkstra's Path Finding Algorithm and Visualizer")
             algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 0, 1, True)
           elif event.key == pygame.K_g:
             pygame.display.set_caption("Greedy Best-first Search Path Finding Algorithm and Visualizer")
@@ -457,8 +451,6 @@ def main(win, width):
           elif event.key == pygame.K_d:
             pygame.display.set_caption("Depth-first Search Path Finding Algorithm and Visualizer")
             depth_first_search_algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
-          
-            
 
         if event.key == pygame.K_r:
           caption()
@@ -469,7 +461,7 @@ def main(win, width):
           caption()
           for row in grid:
             for node in row:
-              if node.is_weight() or node.is_barrier() or node.is_open() or node.is_closed() or node.is_path() or node.is_half_open() or node.is_half_closed():
+              if not node.color == WHITE:
                 node.reset()
         elif event.key == pygame.K_LCTRL:
           caption()
@@ -479,15 +471,5 @@ def main(win, width):
                 node.reset()
               elif node.is_half_closed() or node.is_half_open():
                 node.make_weight()
-        
-
-
   pygame.quit()
-
-
-
-
 main(WIN, WIDTH)
-
-
-

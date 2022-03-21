@@ -20,7 +20,7 @@ You can also edit these using the editing tools mentioned above
 ### Algorithms
 * Press A for A*
 * Press B for Breadth-first search
-* Press D for Djikstra's
+* Press D for Dijkstra's
 * Press D for Depth-first search
 * Press S for Swarm
 * Press X for Convergent Swarm
