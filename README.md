@@ -1,5 +1,6 @@
 # Pathfinding Algorithm Visualiser
  
+An extension of Tech With Tim's A* pathfinding visualiser
 ## How To Use
 
 ### Making the 'Maze'
