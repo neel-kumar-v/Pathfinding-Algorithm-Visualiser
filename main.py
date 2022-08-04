@@ -439,15 +439,9 @@ def main(win, width):
           elif event.key == pygame.K_g:
             pygame.display.set_caption("Greedy Best-first Search Path Finding Algorithm and Visualizer")
             algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, True, 1, 1, True)
-          elif event.key == pygame.K_s:
-            pygame.display.set_caption("Swarm Path Finding Algorithm and Visualizer")
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1, 1.08, True)
           elif event.key == pygame.K_b:            
             pygame.display.set_caption("Breadth-First Search Path Finding Algorithm and Visualizer")
             algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 0, 1, False)
-          elif event.key == pygame.K_x:
-            pygame.display.set_caption("Convergent Swarm Path Finding Algorithm and Visualizer")
-            algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end, False, 1, 1.004_7, True)
           elif event.key == pygame.K_d:
             pygame.display.set_caption("Depth-first Search Path Finding Algorithm and Visualizer")
             depth_first_search_algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
