@@ -1,6 +1,6 @@
 # Pathfinding Algorithm Visualiser
  
-An extension of @techwithtim Tech With Tim's A* pathfinding visualiser
+An implementation of Wikipedia's A* pathfinding pseudocode, along with a visualiser and an extension including Breadth-first search, Dijkstra's, etc.
 ## How To Use
 
 ### Making the 'Maze'
@@ -21,10 +21,10 @@ You can also edit these using the editing tools mentioned above
 ### Algorithms
 * Press A for A*
 * Press B for Breadth-first search
-* Press D for Dijkstra's
+* Press J for Dijkstra's
 * Press D for Depth-first search
-* Press S for Swarm
-* Press X for Convergent Swarm
+* Press G for Greedy Best-first Search
+
 
 ### Clearing the board
 * Press R to completely reset the board
