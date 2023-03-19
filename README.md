@@ -1,6 +1,6 @@
 # Pathfinding Algorithm Visualiser
  
-An implementation of Wikipedia's A* pathfinding pseudocode, along with a visualiser and an extension including Breadth-first search, Dijkstra's, etc.
+An implementation of A* pathfinding algorithm, along with a visualiser and an extension including Breadth-first search, Dijkstra's, etc.
 ## How To Use
 
 ### Making the 'Maze'
