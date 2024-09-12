@@ -16,6 +16,7 @@ OFF_GREEN = (0, 254, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
+BLACK_TRANSPARENT = (0, 0, 0, 50)
 BLACK = (0, 0, 0)
 PURPLE = (128, 0, 128)
 ORANGE = (255, 165, 100)
@@ -251,9 +252,9 @@ def make_grid(rows, width):
 def draw_grid(win, rows, width):
   gap = width // rows
   for i in range(rows):
-    pygame.draw.line(win, BLACK, (0, i * gap), (width, i * gap))
+    pygame.draw.line(win, BLACK_TRANSPARENT, (0, i * gap), (width, i * gap))
     for j in range(rows):
-      pygame.draw.line(win, BLACK, (j * gap, 0), (j * gap, width))
+      pygame.draw.line(win, BLACK_TRANSPARENT, (j * gap, 0), (j * gap, width))
 
 def draw(win, grid, rows, width):
   win.fill(WHITE)
